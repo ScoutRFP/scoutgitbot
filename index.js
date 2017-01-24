@@ -4,9 +4,9 @@ var Client  = require('slack-client'),
 module.exports = Client;
  
 // Create a new bot at https://YOURSLACK.slack.com/services/new/bot
-var BOT_TOKEN  = 'YOURSLACK-BOT-TOKEN',
-    REPO_OWNER = 'augbog',
-    REPO_NAME  = 'slack-github-issue';
+var BOT_TOKEN  = process.env.SLACK_TOKEN,
+    REPO_OWNER = 'ScoutRFP',
+    REPO_NAME  = 'ScoutRFP';
 
 var slack = new Client(BOT_TOKEN, true, true);
 
@@ -40,16 +40,17 @@ slack.on('message', function(message) {
     var channel = slack.getChannelGroupOrDMByID(message.channel);
     var user = slack.getUserByID(message.user);
     // if we find a #...
-    if (message.type === 'message' && message.hasOwnProperty('text') && message.text.indexOf('#') > -1) {
-      var issueNum = message.text.substr(message.text.indexOf('#')).split(' ')[0];
-      if (/^#\d+$/.test(issueNum)) {
+    if (message.type === 'message' && message.hasOwnProperty('text') && message.text.indexOf('PR-') > -1) {
+      var issueNum = message.text.substr(message.text.indexOf('PR-')).split(' ')[0];
+      if (/^PR-\d+$/.test(issueNum)) {
         var issueDescription,
             options = {
-              url: 'https://api.github.com/repos/' + REPO_OWNER +'/' + REPO_NAME + '/issues/' + issueNum.substr(1),
+              url: 'https://api.github.com/repos/' + REPO_OWNER +'/' + REPO_NAME + '/issues/' + issueNum.substr(3),
               method: 'GET',
               headers: {
                 'User-Agent':   'Super Agent/0.0.1',
-                'Content-Type': 'application/x-www-form-urlencoded'
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Authorization': 'token ' + process.env.OAUTH_TOKEN
               }
             };
 
